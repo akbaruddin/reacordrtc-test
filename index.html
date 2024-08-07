@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RecordRTC</title>
+    <script src="https://www.WebRTC-Experiment.com/RecordRTC.js"></script>
+  </head>
+  <body>
+    <video id="video" width="300px" height="200px" autoplay playsinline></video>
+    <button id="start">Start</button>
+    <button id="stop">Stop</button>
+
+    <script>
+      const stopButton = document.querySelector("#stop");
+      const startButton = document.querySelector("#start");
+      const video = document.querySelector("#video");
+      window.recorder;
+      window.strem;
+      startButton.addEventListener("click", function () {
+        navigator.mediaDevices
+          .getUserMedia({
+            video: { facingMode: { exact: "environment" } },
+            // video: true,
+            audio: false,
+          })
+          .then(async function (stream) {
+            video.muted = true;
+            video.volume = 0;
+            video.srcObject = stream;
+            window.recorder = RecordRTC(stream, {
+              type: "video"
+            });
+            window.strem = stream;
+            recorder.startRecording();
+          });
+      });
+
+      stopButton.addEventListener("click", function () {
+        window.recorder.stopRecording(function () {
+          let blob = recorder.getBlob();
+          invokeSaveAsDialog(blob, 'video.webm');
+          window.strem.getTracks().forEach(function(track) {
+            track.stop();
+          })
+        });
+      });
+    </script>
+  </body>
+</html>
